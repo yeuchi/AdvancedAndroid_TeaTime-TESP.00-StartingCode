@@ -16,24 +16,67 @@
 
 package com.example.android.teatime;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import android.support.test.espresso.IdlingResource;
 import com.example.android.teatime.model.Tea;
 
 import java.util.ArrayList;
+import com.example.android.teatime.IdlingResource.SimpleIdlingResource;
 
-public class MenuActivity extends AppCompatActivity {
+// TODO (1) Implement ImageDownloader.DelayerCallback
+public class MenuActivity extends AppCompatActivity implements View.OnClickListener,
+        ImageDownloader.DelayerCallback  {
 
     Intent mTeaIntent;
 
     public final static String EXTRA_TEA_NAME = "com.example.android.teatime.EXTRA_TEA_NAME";
 
+    // TODO (2) Add a SimpleIdlingResource variable that will be null in production
+    @Nullable
+    private SimpleIdlingResource mIdlingResource;
+
+    /**
+     * TODO (3) Create a method that returns the IdlingResource variable. It will
+     * instantiate a new instance of SimpleIdlingResource if the IdlingResource is null.
+     * This method will only be called from test.
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource()
+    {
+        if (mIdlingResource == null)
+        {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        return mIdlingResource;
+    }
+
+    @Override
+    public void onClick(View view)
+    {
+        Context context = getApplicationContext();
+        ImageDownloader.downloadImage(context, this, mIdlingResource);
+    }
+
+    /**
+     * TODO (4) Using the method you created, get the IdlingResource variable.
+     * Then call downloadImage from ImageDownloader. To ensure there's enough time for IdlingResource
+     * to be initialized, remember to call downloadImage in either onStart or onResume.
+     * This is because @Before in Espresso Tests is executed after the activity is created in
+     * onCreate, so there might not be enough time to register the IdlingResource if the download is
+     * done too early.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,10 +102,11 @@ public class MenuActivity extends AppCompatActivity {
 
 
         // Set a click listener on that View
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
+            {
                 Tea item = (Tea) adapterView.getItemAtPosition(position);
                 // Set the intent to open the {@link OrderActivity}
                 mTeaIntent = new Intent(MenuActivity.this, OrderActivity.class);
@@ -72,7 +116,13 @@ public class MenuActivity extends AppCompatActivity {
 
             }
         });
-
     }
 
+    // TODO (5) Override onDone so when the thread in ImageDownloader is finished, it returns an
+    // ArrayList of Tea objects via the callback.
+    @Override
+    public void onDone(ArrayList<Tea> teas)
+    {
+
+    }
 }
