@@ -17,15 +17,30 @@
 package com.example.android.teatime;
 
 
+import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingResource;
+import android.support.test.espresso.assertion.ViewAssertions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.View;
+import android.widget.GridView;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.hamcrest.CoreMatchers;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isChecked;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 /**
  * Usually Espresso syncs all view operations with the UI thread as well as AsyncTasks, but it can't
@@ -43,6 +58,23 @@ import org.junit.runner.RunWith;
  * for the Idling Resource.
  */
 
+class Matchers
+{
+    public static Matcher<View> withMinSize(final int size)
+    {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View item) {
+                return ((GridView)item).getChildCount() > size;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("GridView should have > "+size+" items");
+            }
+        };
+    }
+}
 
 @RunWith(AndroidJUnit4.class)
 public class IdlingResourceMenuActivityTest {
@@ -62,22 +94,30 @@ public class IdlingResourceMenuActivityTest {
     private IdlingResource mIdlingResource;
 
 
-    // TODO (6) Registers any resource that needs to be synchronized with Espresso before
+    // TODO (8-19 6) Registers any resource that needs to be synchronized with Espresso before
     // the test is run.
     @Before
-    public void registerIdlingResource() {
-
+    public void registerIdlingResource()
+    {
+        mIdlingResource = mActivityTestRule.getActivity().getIdlingResource();
+        Espresso.registerIdlingResources(mIdlingResource);
     }
 
-    // TODO (7) Test that the gridView with Tea objects appears and we can click a gridView item
+    // TODO (8-19 7) Test that the gridView with Tea objects appears and we can click a gridView item
     @Test
-    public void idlingResourceTest() {
-
+    public void idlingResourceTest()
+    {
+        onView((withId(R.id.tea_grid_view)))
+                .check(ViewAssertions.matches(Matchers.withMinSize(1)));
     }
 
-    // TODO (8) Unregister resources when not needed to avoid malfunction
+    // TODO (8-19 8) Unregister resources when not needed to avoid malfunction
     @After
-    public void unregisterIdlingResource() {
-
+    public void unregisterIdlingResource()
+    {
+        if(null!=mIdlingResource)
+            Espresso.unregisterIdlingResources(mIdlingResource);
     }
+
+
 }

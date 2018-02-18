@@ -34,7 +34,7 @@ import com.example.android.teatime.model.Tea;
 import java.util.ArrayList;
 import com.example.android.teatime.IdlingResource.SimpleIdlingResource;
 
-// TODO (1) Implement ImageDownloader.DelayerCallback
+// TODO (8-19 1) Implement ImageDownloader.DelayerCallback
 public class MenuActivity extends AppCompatActivity implements View.OnClickListener,
         ImageDownloader.DelayerCallback  {
 
@@ -42,12 +42,12 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
     public final static String EXTRA_TEA_NAME = "com.example.android.teatime.EXTRA_TEA_NAME";
 
-    // TODO (2) Add a SimpleIdlingResource variable that will be null in production
+    // TODO (8-19 2) Add a SimpleIdlingResource variable that will be null in production
     @Nullable
     private SimpleIdlingResource mIdlingResource;
 
     /**
-     * TODO (3) Create a method that returns the IdlingResource variable. It will
+     * TODO (8-19 3) Create a method that returns the IdlingResource variable. It will
      * instantiate a new instance of SimpleIdlingResource if the IdlingResource is null.
      * This method will only be called from test.
      */
@@ -70,7 +70,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * TODO (4) Using the method you created, get the IdlingResource variable.
+     * TODO (8-19 4) Using the method you created, get the IdlingResource variable.
      * Then call downloadImage from ImageDownloader. To ensure there's enough time for IdlingResource
      * to be initialized, remember to call downloadImage in either onStart or onResume.
      * This is because @Before in Espresso Tests is executed after the activity is created in
@@ -85,6 +85,7 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(menuToolbar);
         getSupportActionBar().setTitle(getString(R.string.menu_title));
 
+        /*
         // Create an ArrayList of teas
         final ArrayList<Tea> teas = new ArrayList<>();
         teas.add(new Tea(getString(R.string.black_tea_name), R.drawable.black_tea));
@@ -93,8 +94,27 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
         teas.add(new Tea(getString(R.string.oolong_tea_name), R.drawable.oolong_tea));
         teas.add(new Tea(getString(R.string.honey_lemon_tea_name), R.drawable.honey_lemon_tea));
         teas.add(new Tea(getString(R.string.chamomile_tea_name), R.drawable.chamomile_tea));
+*/
+        getIdlingResource();
+    }
 
-        // Create a {@link TeaAdapter}, whose data source is a list of {@link Tea}s.
+    /**
+     * We call ImageDownloader.downloadImage from onStart or onResume instead of in onCreate
+     * to ensure there is enougth time to register IdlingResource if the download is done
+     * too early (i.e. in onCreate)
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ImageDownloader.downloadImage(this, MenuActivity.this, mIdlingResource);
+    }
+
+    // TODO (8-19 5) Override onDone so when the thread in ImageDownloader is finished, it returns an
+    // ArrayList of Tea objects via the callback.
+    @Override
+    public void onDone(ArrayList<Tea> teas)
+    {
+// Create a {@link TeaAdapter}, whose data source is a list of {@link Tea}s.
         // The adapter know how to create grid items for each item in the list.
         GridView gridview = (GridView) findViewById(R.id.tea_grid_view);
         TeaMenuAdapter adapter = new TeaMenuAdapter(this, R.layout.grid_item_layout, teas);
@@ -116,13 +136,5 @@ public class MenuActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-    }
-
-    // TODO (5) Override onDone so when the thread in ImageDownloader is finished, it returns an
-    // ArrayList of Tea objects via the callback.
-    @Override
-    public void onDone(ArrayList<Tea> teas)
-    {
-
     }
 }

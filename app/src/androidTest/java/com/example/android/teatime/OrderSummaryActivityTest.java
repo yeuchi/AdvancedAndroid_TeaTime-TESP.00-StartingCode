@@ -36,17 +36,17 @@ import org.junit.Test;
  * Created by ctyeung on 2/14/18.
  */
 
-// TODO (1) Add annotation to specify AndroidJUnitRunner class as the default test runner
+// TODO (8-19 1) Add annotation to specify AndroidJUnitRunner class as the default test runner
 @RunWith(AndroidJUnit4.class)
 public class OrderSummaryActivityTest
 {
 
-    // TODO (2) Add the rule that indicates we want to use Espresso-Intents APIs in functional UI tests
+    // TODO (8-19 2) Add the rule that indicates we want to use Espresso-Intents APIs in functional UI tests
     @Rule
     public IntentsTestRule<OrderSummaryActivity> mActivityRule = new IntentsTestRule<>(
             OrderSummaryActivity.class);
 
-    // TODO (3) Finish this method which runs before each test and will stub all external
+    // TODO (8-19 3) Finish this method which runs before each test and will stub all external
     // intents so all external intents will be blocked
     @Before
     public void stubAllExternalIntents()
@@ -56,7 +56,7 @@ public class OrderSummaryActivityTest
     }
 
 
-    // TODO (4) Finish this method which verifies that the intent sent by clicking the send email
+    // TODO (8-19 4) Finish this method which verifies that the intent sent by clicking the send email
     // button matches the intent sent by the application
     @Test
     public void clickSendEmailButton_SendsEmail()
